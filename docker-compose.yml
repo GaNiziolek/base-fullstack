@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  bd:
+    # readme: https://github.com/docker-library/docs/blob/master/postgres/README.md
+    image: postgres:12-alpine
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=mudar123
+      - PGDATA=/var/lib/postgres/data/PGDATA
+    volumes:
+      - ./bd/data:/var/lib/postgres/data/PGDATA
+      - ./bd/initialization:/docker-entrypoint-initdb.d
+    ports:
+      - 5432:5432
+
+  
+    
