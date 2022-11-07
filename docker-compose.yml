@@ -8,11 +8,27 @@ services:
     environment:
       - POSTGRES_PASSWORD=mudar123
       - PGDATA=/var/lib/postgres/data/PGDATA
-    volumes:
-      - ./bd/data:/var/lib/postgres/data/PGDATA
-      - ./bd/initialization:/docker-entrypoint-initdb.d
+    #volumes:
+    #  - ./bd/data:/var/lib/postgres/data/PGDATA
+    #  - ./bd/initialization:/docker-entrypoint-initdb.d
     ports:
       - 5432:5432
+
+  api-dev:
+    image: python:3.8-alpine
+    
+    volumes:
+      - ./api:/api
+
+    ports:
+      - 6543:6543
+      - 6544:6544
+
+    command: >
+      sh -c "cd /api &&
+             pip install -r requirements.txt &&
+             pip install -e . &&
+             pserve development.ini --reload"
 
   
     

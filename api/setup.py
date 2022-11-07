@@ -5,6 +5,7 @@ from setuptools import setup
 requires = [
     'waitress',
     'cornice',
+    'sqlalchemy'
 ]
 
 setup(
