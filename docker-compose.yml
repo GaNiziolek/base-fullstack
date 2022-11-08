@@ -17,6 +17,9 @@ services:
   api-dev:
     image: python:3.8-alpine
     
+    environment:
+      - API_DB_STRING=postgresql+psycopg2://user:password@host:port/database
+    
     volumes:
       - ./api:/api
 
@@ -28,7 +31,7 @@ services:
       sh -c "cd /api &&
              pip install -r requirements.txt &&
              pip install -e . &&
-             pserve development.ini --reload"
+             pserve production.ini --reload"
 
   
     
