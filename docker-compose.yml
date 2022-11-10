@@ -3,16 +3,30 @@ version: "3.9"
 services:
   bd:
     # readme: https://github.com/docker-library/docs/blob/master/postgres/README.md
-    image: postgres:12-alpine
+    image: ganiziolek/gtrp-bd:base-teste
     restart: always
     environment:
-      - POSTGRES_PASSWORD=mudar123
       - PGDATA=/var/lib/postgres/data/PGDATA
-    #volumes:
+    volumes:
     #  - ./bd/data:/var/lib/postgres/data/PGDATA
-    #  - ./bd/initialization:/docker-entrypoint-initdb.d
+      - ./bd/initialization:/docker-entrypoint-initdb.d
     ports:
       - 5432:5432
+    
+    command: >-
+      postgres
+        -c max_connections=20
+        -c shared_buffers=512MB
+        -c effective_cache_size=1536MB
+        -c maintenance_work_mem=128MB
+        -c checkpoint_completion_target=0.9
+        -c wal_buffers=16MB
+        -c default_statistics_target=100
+        -c random_page_cost=1.1
+        -c effective_io_concurrency=200
+        -c work_mem=6553kB
+        -c min_wal_size=1GB
+        -c max_wal_size=4GB
 
   api-dev:
     image: python:3.8-alpine

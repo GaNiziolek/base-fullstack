@@ -7,6 +7,7 @@ import datetime
 from .. import Session
 
 from ..models import Leituras
+from ..models import IO
 
 leituras = Service(
     name='leituras',
@@ -75,20 +76,34 @@ def leituras_get(request):
 
 class leituras_post_schema(colander.MappingSchema):
 
-    descricao_io       = colander.SchemaNode(colander.String())
-    endereco_ip        = colander.SchemaNode(colander.String())
-    id_recurso         = colander.SchemaNode(colander.Integer())
-    max_tempo_inativo  = colander.SchemaNode(colander.Integer())
-    temperatura_camera = colander.SchemaNode(colander.Float())
+    codigo_leitura     = colander.SchemaNode(colander.String())
+    data_leitura       = colander.SchemaNode(colander.DateTime())
+    id_recurso         = colander.SchemaNode(colander.Integer(), validator=colander.Range(1), missing=colander.drop)
+    id_io              = colander.SchemaNode(colander.Integer(), validator=colander.Range(1), missing=colander.drop)
+    qtd_leitura        = colander.SchemaNode(colander.Integer())
+    leitura_manual     = colander.SchemaNode(colander.Boolean())
 
 @leituras.post(schema=leituras_post_schema(), validators=(colander_body_validator,))
 def leituras_post(request):
 
     with Session() as session:
 
-        body = request.json_body
+        body = leituras_post_schema().deserialize(request.json_body)
 
-        io = IO(
+        print(body)
+
+        exit()
+        
+        if body['id_io'] == 0:
+            if not 'id_recurso' in body or body.get('id_recurso') == 0: 
+                return colander.Invalid(leituras_post_schema, "Quando 'id_io' não for especificado (ou igual a zero), é necessário especificar 'id_recurso'").asdict()
+
+            body['id_io'] = (session.query(IO.id_io)
+                                    .where(IO.io_inativa == 'N')
+                                    .where(IO.id_recurso == body['id_recurso'])
+                            )
+                            
+        io = Leituras(
             descricao_io       = body['descricao_io'],
             endereco_ip        = body['endereco_ip'],
             id_recurso         = body['id_recurso'],
